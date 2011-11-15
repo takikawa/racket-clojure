@@ -10,7 +10,9 @@
 (provide (except-out (all-from-out racket/base)
                      #%app)
          (rename-out [-#%app #%app])
-         def do let fn loop recur)
+         def do let fn defn loop recur
+         partial comp complement constantly
+         map)
 
 (define-syntax-parameter recur
   (λ (stx)
@@ -69,12 +71,18 @@
                           ([param ...] body ...) ...))])
          name)]))
 
+(define-syntax (defn stx)
+  (syntax-parse stx
+    [(_ name:id expr ...)
+     #'(define name (fn expr ...))]))
+
 (begin-for-syntax
   (define (clojure-kwd? e)
     (define exp (syntax-e e))
     (and (symbol? exp)
          (regexp-match #rx":.*" (symbol->string exp)))))
 
+;; modify lexical syntax via macros
 (define-syntax (-#%app stx)
 
   ;; check for unquote in these two classes to "noop" commas
@@ -103,3 +111,11 @@
      #'(hash key-vals ...)]
     [(_ proc:expr arg:expr ...)
      #'(proc arg ...)]))
+
+;; useful functions
+(require racket/function)
+
+(define partial curry)
+(define comp compose)
+(define complement negate)
+(define constantly const)
