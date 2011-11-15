@@ -4,8 +4,46 @@
                      racket/list
                      syntax/parse))
 
-(provide (except-out (all-from-out racket/base) #%app)
-         (rename-out [-#%app #%app]))
+(provide (except-out (all-from-out racket/base)
+                     #%app)
+         (rename-out [-#%app #%app])
+         def do let fn)
+
+;; basic forms
+(define-syntax (def stx)
+  (syntax-parse stx
+    [(_ name:id init)
+     #'(define name init)]))
+
+(define-syntax-rule (do expr ...)
+  (begin expr ...))
+
+(define-syntax (let stx)
+  (define-splicing-syntax-class binding-pair
+    #:description "binding pair"
+    (pattern (~seq name:id val:expr)))
+  
+  (syntax-parse stx
+    [(_ (~and binding-list [p:binding-pair ...])
+        body:expr ...)
+     #:fail-unless (eq? (syntax-property #'binding-list 'paren-shape) #\[)
+                   "expected a vector of bindings"
+     #'(let* ([p.name p.val] ...)
+         body ...)]))
+
+(define-syntax (fn stx)
+  (syntax-parse stx
+    [(_ name:id [param:id ...] body ...)
+     #'(letrec ([name (λ (param ...) body ...)])
+         name)]
+    [(_ name:id ([param:id ...] body ...) ...+)
+     #'(letrec ([name (case-lambda
+                        ([param ...] body ...) ...)])
+         name)]
+    [(_ [param:id ...] body ...)
+     #'(λ (param ...) body ...)]
+    [(_ ([param:id ...] body ...) ...+)
+     #'(case-lambda ([param ...] body ...) ...)]))
 
 (begin-for-syntax
   (define (clojure-kwd? e)
