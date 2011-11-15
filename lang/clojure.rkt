@@ -1,13 +1,20 @@
 #lang racket/base
 
-(require (for-syntax racket/base
+;; Clojure compatibility
+
+(require racket/stxparam
+         (for-syntax racket/base
                      racket/list
                      syntax/parse))
 
 (provide (except-out (all-from-out racket/base)
                      #%app)
          (rename-out [-#%app #%app])
-         def do let fn)
+         def do let fn loop recur)
+
+(define-syntax-parameter recur
+  (λ (stx)
+    (raise-syntax-error #f "cannot be used outside fn or loop" stx)))
 
 ;; basic forms
 (define-syntax (def stx)
@@ -18,11 +25,13 @@
 (define-syntax-rule (do expr ...)
   (begin expr ...))
 
-(define-syntax (let stx)
+;; used for let and loop
+(begin-for-syntax
   (define-splicing-syntax-class binding-pair
     #:description "binding pair"
-    (pattern (~seq name:id val:expr)))
-  
+    (pattern (~seq name:id val:expr))))
+
+(define-syntax (let stx)
   (syntax-parse stx
     [(_ (~and binding-list [p:binding-pair ...])
         body:expr ...)
@@ -31,19 +40,34 @@
      #'(let* ([p.name p.val] ...)
          body ...)]))
 
+(define-syntax (loop stx)
+  (syntax-parse stx
+    [(_ (~and binding-list [p:binding-pair ...])
+        body:expr ...)
+     #:with name #'x
+     #:fail-unless (eq? (syntax-property #'binding-list 'paren-shape) #\[)
+     "expected a vector of bindings"
+     #'(letrec ([name (λ (p.name ...)
+                        (syntax-parameterize ([recur (make-rename-transformer #'name)])
+                          body ...))])
+         (let* ([p.name p.val] ...)
+           (syntax-parameterize ([recur (make-rename-transformer #'name)])
+             body ...)))]))
+
 (define-syntax (fn stx)
   (syntax-parse stx
-    [(_ name:id [param:id ...] body ...)
-     #'(letrec ([name (λ (param ...) body ...)])
+    [(_ (~optional name:id #:defaults ([name #'x]))
+        [param:id ...] body ...)
+     #'(letrec ([name (λ (param ...)
+                        (syntax-parameterize ([recur (make-rename-transformer #'name)])
+                          body ...))])
          name)]
-    [(_ name:id ([param:id ...] body ...) ...+)
-     #'(letrec ([name (case-lambda
-                        ([param ...] body ...) ...)])
-         name)]
-    [(_ [param:id ...] body ...)
-     #'(λ (param ...) body ...)]
-    [(_ ([param:id ...] body ...) ...+)
-     #'(case-lambda ([param ...] body ...) ...)]))
+    [(_ (~optional name:id #:defaults ([name #'x]))
+        ([param:id ...] body ...) ...+)
+     #'(letrec ([name (syntax-parameterize ([recur (make-rename-transformer #'name)])
+                        (case-lambda
+                          ([param ...] body ...) ...))])
+         name)]))
 
 (begin-for-syntax
   (define (clojure-kwd? e)
