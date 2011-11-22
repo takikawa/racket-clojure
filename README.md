@@ -1,4 +1,4 @@
-#lang clojure
+\#lang clojure
 =============
 
 This project is a stub for a Clojure compatibility language in Racket.
