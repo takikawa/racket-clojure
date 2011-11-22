@@ -8,8 +8,9 @@
                      syntax/parse))
 
 (provide (except-out (all-from-out racket/base)
-                     #%app)
-         (rename-out [-#%app #%app])
+                     #%app quote)
+         (rename-out [-#%app #%app]
+                     [-quote quote])
          def do let fn defn loop recur
          partial comp complement constantly
          map)
@@ -76,15 +77,8 @@
     [(_ name:id expr ...)
      #'(define name (fn expr ...))]))
 
-(begin-for-syntax
-  (define (clojure-kwd? e)
-    (define exp (syntax-e e))
-    (and (symbol? exp)
-         (regexp-match #rx":.*" (symbol->string exp)))))
-
 ;; modify lexical syntax via macros
-(define-syntax (-#%app stx)
-
+(begin-for-syntax
   ;; check for unquote in these two classes to "noop" commas
   (define-splicing-syntax-class key-value-pair
     (pattern (~seq k:key (~or e:expr (unquote e:expr)))
@@ -95,6 +89,23 @@
              #:when (clojure-kwd? #'e)
              #:attr sym #'(quote e)))
 
+  (define-syntax-class vector-literal
+    (pattern (~and vec (e:expr ...))
+             #:when (eq? (syntax-property #'vec 'paren-shape) #\[)))
+
+  (define (clojure-kwd? e)
+    (define exp (syntax-e e))
+    (and (symbol? exp)
+         (regexp-match #rx":.*" (symbol->string exp)))))
+
+(define-syntax (-quote stx)
+  (syntax-parse stx
+    ;; quoted vector literals
+    [(_ datum:vector-literal)
+     #'(vector datum.e ...)]
+    [(_ e) #'(quote e)]))
+
+(define-syntax (-#%app stx)
   (syntax-parse stx
     ;; [1 2 3] is an array
     [(_ e:expr ...)
@@ -110,7 +121,7 @@
               (apply append (syntax->datum #'(kv.pair ...))))
      #'(hash key-vals ...)]
     [(_ proc:expr arg:expr ...)
-     #'(proc arg ...)]))
+     #'(#%app proc arg ...)]))
 
 ;; useful functions
 (require racket/function)
@@ -119,3 +130,12 @@
 (define comp compose)
 (define complement negate)
 (define constantly const)
+
+;; sequences
+(require racket/sequence
+         racket/stream)
+
+(define (first s) stream-first)
+(define (rest s) stream-rest)
+(define (cons fst rst) (stream-cons fst rst))
+(define map sequence-map)
