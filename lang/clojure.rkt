@@ -12,7 +12,7 @@
          (rename-out [-#%app #%app]
                      [-quote quote])
          def do let fn defn loop recur
-         ->
+         -> ->>
          partial comp complement constantly
          map)
 
@@ -88,6 +88,14 @@
      #'(-> x (e))]
     [(_ x form form_1 ...)
      #'(-> (-> x form) form_1 ...)]))
+
+(define-syntax (->> stx)
+  (syntax-parse stx
+    [(_ x) #'x]
+    [(_ x (e e_1 ...))
+     #'(e e_1 ... x)]
+    [(_ x form form_1 ...)
+     #'(->> (->> x form) form_1 ...)]))
 
 ;; modify lexical syntax via macros
 (begin-for-syntax

@@ -51,3 +51,7 @@ foo
      (string-split " ")
      car)
  "X")
+
+(check-equal?
+ (->> 5 (+ 3) (/ 2) (- 1))
+ (/ 3 4))
