@@ -12,6 +12,7 @@
          (rename-out [-#%app #%app]
                      [-quote quote])
          def do let fn defn loop recur
+         ->
          partial comp complement constantly
          map)
 
@@ -76,6 +77,17 @@
   (syntax-parse stx
     [(_ name:id expr ...)
      #'(define name (fn expr ...))]))
+
+;; thrush operators
+(define-syntax (-> stx)
+  (syntax-parse stx
+    [(_ x) #'x]
+    [(_ x (e e_1 ...))
+     #'(e x e_1 ...)]
+    [(_ x e)
+     #'(-> x (e))]
+    [(_ x form form_1 ...)
+     #'(-> (-> x form) form_1 ...)]))
 
 ;; modify lexical syntax via macros
 (begin-for-syntax

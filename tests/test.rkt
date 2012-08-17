@@ -41,3 +41,13 @@ foo
         (recur (- x 1) (* x n)))))
 
 (check-equal? (fact 5) 120)
+
+;; thrush operators
+(require (only-in racket/string string-split string-replace))
+(check-equal?
+ (-> "a b c d"
+     string-upcase
+     (string-replace "A" "X")
+     (string-split " ")
+     car)
+ "X")
