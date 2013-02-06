@@ -55,3 +55,9 @@ foo
 (check-equal?
  (->> 5 (+ 3) (/ 2) (- 1))
  (/ 3 4))
+
+;; quote behavior
+(check-equal? (quote a b c d) (quote a))
+(check-equal? (quote 5 a) 5)
+(check-equal? (-> 5 'a) 5)
+

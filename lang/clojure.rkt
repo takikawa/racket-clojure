@@ -123,7 +123,8 @@
     ;; quoted vector literals
     [(_ datum:vector-literal)
      #'(vector datum.e ...)]
-    [(_ e) #'(quote e)]))
+    ;; Clojure's quote allows multiple arguments
+    [(_ e e_1 ...) #'(quote e)]))
 
 (define-syntax (-#%app stx)
   (syntax-parse stx
