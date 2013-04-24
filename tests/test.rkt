@@ -61,3 +61,11 @@ foo
 (check-equal? (quote 5 a) 5)
 (check-equal? (-> 5 'a) 5)
 
+(check-equal? "yes" (if true "yes"))
+(check-equal? "yes" (if true "yes" "no"))
+(check-equal? "no" (if false "yes" "no"))
+(check-equal? "no" (if nil "yes" "no"))
+(check-equal? "still true" (if -1 "still true" "false"))
+(check-equal? "still true" (if 0 "still true" "false"))
+(check-equal? "still true" (if [] "still true" "false"))
+(check-equal? "still true" (if (list) "still true" "false"))
