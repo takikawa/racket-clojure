@@ -61,6 +61,7 @@ foo
 (check-equal? (quote 5 a) 5)
 (check-equal? (-> 5 'a) 5)
 
+;if tests based on a post by Jay Fields
 (check-equal? "yes" (if true "yes"))
 (check-equal? "yes" (if true "yes" "no"))
 (check-equal? "no" (if false "yes" "no"))
