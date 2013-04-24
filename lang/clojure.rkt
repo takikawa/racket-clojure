@@ -1,4 +1,4 @@
-#lang racket/base
+lang racket/base
 
 ;; Clojure compatibility
 
@@ -8,13 +8,14 @@
                      syntax/parse))
 
 (provide (except-out (all-from-out racket/base)
-                     #%app quote)
+                     if #%app quote)
          (rename-out [-#%app #%app]
-                     [-quote quote])
+                     [-quote quote]
+                     [clojure:if if])
          def do let fn defn loop recur
          -> ->>
          partial comp complement constantly
-         map)
+         map true false nil)
 
 (define-syntax-parameter recur
   (λ (stx)
@@ -28,6 +29,11 @@
 
 (define-syntax-rule (do expr ...)
   (begin expr ...))
+
+(define true #t)
+(define false #f)
+;;nil maps most closely to #f
+(define nil #f)
 
 ;; used for let and loop
 (begin-for-syntax
@@ -96,6 +102,13 @@
      #'(e e_1 ... x)]
     [(_ x form form_1 ...)
      #'(->> (->> x form) form_1 ...)]))
+
+(define-syntax (clojure:if stx)
+  (syntax-parse stx
+    [(_ test then) 
+     #'(if test then null)]
+    [(_ test then else) 
+     #'(if test then else)]))
 
 ;; modify lexical syntax via macros
 (begin-for-syntax
