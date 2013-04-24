@@ -1,4 +1,4 @@
-#lang racket/base
+lang racket/base
 
 ;; Clojure compatibility
 
@@ -8,11 +8,10 @@
                      syntax/parse))
 
 (provide (except-out (all-from-out racket/base)
-		     if
-                     #%app quote)
+                     if #%app quote)
          (rename-out [-#%app #%app]
                      [-quote quote]
-		     [clojure:if if])
+                     [clojure:if if])
          def do let fn defn loop recur
          -> ->>
          partial comp complement constantly
@@ -106,9 +105,10 @@
 
 (define-syntax (clojure:if stx)
   (syntax-parse stx
-		[(_ test then) 
-		 #'(if test then null)]
-		[(_ test then else) #'(if test then else)]))
+    [(_ test then) 
+     #'(if test then null)]
+    [(_ test then else) 
+     #'(if test then else)]))
 
 ;; modify lexical syntax via macros
 (begin-for-syntax
