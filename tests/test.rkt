@@ -70,3 +70,27 @@ foo
 (check-equal? "still true" (if 0 "still true" "false"))
 (check-equal? "still true" (if [] "still true" "false"))
 (check-equal? "still true" (if (list) "still true" "false"))
+
+;cond tests
+(defn factorial [n]
+  (cond
+   (<= n 1) 1
+   :else (* n (factorial (dec n)))))
+(check-equal? 120 (factorial 5))
+
+(check-equal? "B" (let [grade 85]
+                    (cond
+                     (>= grade 90) "A"
+                     (>= grade 80) "B"
+                     (>= grade 70) "C"
+                     (>= grade 60) "D"
+                     :else "F")))
+
+(defn pos-neg-or-zero [n]
+  (cond
+   (< n 0) "negative"
+   (> n 0) "positive"
+   :else "zero"))
+(check-equal? "positive" (pos-neg-or-zero 5))
+(check-equal? "negative" (pos-neg-or-zero -1))
+(check-equal? "zero" (pos-neg-or-zero 0))

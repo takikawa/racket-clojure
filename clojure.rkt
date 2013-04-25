@@ -8,9 +8,12 @@
                      syntax/parse))
 
 (provide (except-out (all-from-out racket/base)
-                     if #%app quote)
+                     add1 sub1 if cond #%app quote)
          (rename-out [-#%app #%app]
                      [-quote quote]
+                     (sub1 dec)
+                     (add1 inc)
+                     [clojure:cond cond]
                      [clojure:if if])
          def do let fn defn loop recur
          -> ->>
@@ -156,6 +159,16 @@
      #'(hash key-vals ...)]
     [(_ proc:expr arg:expr ...)
      #'(#%app proc arg ...)]))
+
+(define-syntax clojure:cond
+  (syntax-rules ()
+    ((_ :else else-expr)
+     (cond (else else-expr)))
+    ((_ e1 e2 e3 ... :else else-expr)
+     (if (= 0 (modulo (length '(e1 e2 e3 ...)) 2))
+         (if e1 e2
+             (clojure:cond e3 ... :else else-expr))
+         (raise-syntax-error #f "cond requires an even number of forms")))))
 
 ;; useful functions
 (require racket/function)
