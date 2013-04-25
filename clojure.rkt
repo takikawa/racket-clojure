@@ -11,8 +11,8 @@
                      add1 sub1 if cond #%app quote)
          (rename-out [-#%app #%app]
                      [-quote quote]
-                     (sub1 dec)
-                     (add1 inc)
+                     [sub1 dec]
+                     [add1 inc]
                      [clojure:cond cond]
                      [clojure:if if])
          def do let fn defn loop recur
