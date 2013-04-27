@@ -10,7 +10,7 @@ usable for real purposes, feel free to send me pull requests.
 To install:
 
   * `git clone git://github.com/takikawa/racket-clojure.git`
-  * `raco link -n clojure racket-clojure`
+  * `raco pkg install racket-clojure/`
 
 ---
 

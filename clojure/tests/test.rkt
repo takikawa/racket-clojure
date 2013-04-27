@@ -61,7 +61,7 @@ foo
 (check-equal? (quote 5 a) 5)
 (check-equal? (-> 5 'a) 5)
 
-;if tests based on a post by Jay Fields
+;; if tests based on a post by Jay Fields
 (check-equal? "yes" (if true "yes"))
 (check-equal? "yes" (if true "yes" "no"))
 (check-equal? "no" (if false "yes" "no"))
@@ -71,7 +71,7 @@ foo
 (check-equal? "still true" (if [] "still true" "false"))
 (check-equal? "still true" (if (list) "still true" "false"))
 
-;cond tests
+;; cond tests
 (defn factorial [n]
   (cond
    (<= n 1) 1
@@ -94,3 +94,4 @@ foo
 (check-equal? "positive" (pos-neg-or-zero 5))
 (check-equal? "negative" (pos-neg-or-zero -1))
 (check-equal? "zero" (pos-neg-or-zero 0))
+
