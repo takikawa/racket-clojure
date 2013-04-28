@@ -95,3 +95,11 @@ foo
 (check-equal? "negative" (pos-neg-or-zero -1))
 (check-equal? "zero" (pos-neg-or-zero 0))
 
+(check-equal? (nth ["a" "b" "c" "d"] 0) "a")
+(check-equal? (nth (list "a" "b" "c" "d") 0) "a")
+(check-equal? (nth ["a" "b" "c" "d"] 1) "b")
+(check-equal? (nth [] 0 "nothing found") "nothing found")
+(check-equal? (nth [0 1 2] 77 1337) 1337)
+(check-equal? (nth "Hello" 0) #\H)
+(check-equal? (nth '(1 2 3) 0) 1)
+
