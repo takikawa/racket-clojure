@@ -172,9 +172,9 @@
 
 ;; lists - examine
 
-(define-syntax nth
-  (syntax-rules ()
-    [(_ coll position)
+(define nth
+  (case-lambda
+    [(coll position)
      (cond
       ((list? coll)
        (list-ref coll position))
@@ -182,7 +182,7 @@
        (vector-ref coll position))
       ((string? coll)
        (string-ref coll position)))]
-    [(_ coll position error-msg)
+    [(coll position error-msg)
      (cond
       ((list? coll)
        (with-handlers ([exn:fail? (lambda (exn) error-msg)])
