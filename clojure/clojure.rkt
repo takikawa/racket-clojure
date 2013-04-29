@@ -18,7 +18,7 @@
          def do let fn defn loop recur
          -> ->>
          partial comp complement constantly
-         map true false nil)
+         map true false nil nth)
 
 (define-syntax-parameter recur
   (λ (stx)
@@ -169,6 +169,30 @@
          (if e1 e2
              (clojure:cond e3 ... :else else-expr))
          (raise-syntax-error #f "cond requires an even number of forms"))]))
+
+;; lists - examine
+
+(define nth
+  (case-lambda
+    [(coll position)
+     (cond
+      ((list? coll)
+       (list-ref coll position))
+      ((vector? coll)
+       (vector-ref coll position))
+      ((string? coll)
+       (string-ref coll position)))]
+    [(coll position error-msg)
+     (cond
+      ((list? coll)
+       (with-handlers ([exn:fail? (lambda (exn) error-msg)])
+         (list-ref coll position)))
+      ((vector? coll)
+       (with-handlers ([exn:fail? (lambda (exn) error-msg)])
+         (vector-ref coll position)))
+      ((string? coll)
+       (with-handlers ([exn:fail? (lambda (exn) error-msg)])
+         (string-ref coll position))))]))
 
 ;; useful functions
 (require racket/function)
