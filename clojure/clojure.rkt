@@ -111,7 +111,7 @@
 (define-syntax (clojure:if stx)
   (syntax-parse stx
     [(_ test then) 
-     #'(if test then null)]
+     #'(if test then #f)]
     [(_ test then else) 
      #'(if test then else)]))
 
@@ -173,28 +173,15 @@
          (raise-syntax-error #f "cond requires an even number of forms"))]))
 
 ;; lists - examine
-;; TODO: use sequences instead
 (define nth
   (case-lambda
     [(coll position)
-     (cond
-      ((list? coll)
-       (list-ref coll position))
-      ((vector? coll)
-       (vector-ref coll position))
-      ((string? coll)
-       (string-ref coll position)))]
+     (sequence-ref coll position)]
     [(coll position error-msg)
-     (cond
-      ((list? coll)
-       (with-handlers ([exn:fail? (lambda (exn) error-msg)])
-         (list-ref coll position)))
-      ((vector? coll)
-       (with-handlers ([exn:fail? (lambda (exn) error-msg)])
-         (vector-ref coll position)))
-      ((string? coll)
-       (with-handlers ([exn:fail? (lambda (exn) error-msg)])
-         (string-ref coll position))))]))
+     (if (or (= 0 (sequence-length coll))
+	     (> position (sequence-length coll)))
+	 error-msg
+	 (sequence-ref coll position))]))
 
 ;; useful functions
 (require racket/function)
