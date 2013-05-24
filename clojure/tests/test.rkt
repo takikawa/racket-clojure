@@ -26,6 +26,8 @@ foo
 (loop [x 3 y 5]
   (+ x y))
 
+;; TODO: make `nil` reader syntax
+(check-equal? (if #f 5) #f)
 
 (check-equal?
  (loop [x 5 n 1]
