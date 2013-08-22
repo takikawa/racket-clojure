@@ -18,6 +18,14 @@ On older versions of Racket:
   * `raco link racket-clojure`
   * `raco setup clojure`
 
+TODO items:
+
+  * Simulate Clojure namespaces using modules/namespaces
+  * Simulate Clojure macros
+  * Simulate Clojure protocols
+  * More compatibility bindings under `clojure/*`
+  * And a lot more...
+
 ---
 
 Copyright (c) 2013 Asumu Takikawa
