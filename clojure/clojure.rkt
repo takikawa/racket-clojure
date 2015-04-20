@@ -163,14 +163,17 @@
      #'(#%app proc arg ...)]))
 
 (define-syntax clojure:cond
-  (syntax-rules ()
-    [(_ :else else-expr)
-     (cond (else else-expr))]
-    [(_ e1 e2 e3 ... :else else-expr)
-     (if (= 0 (modulo (length '(e1 e2 e3 ...)) 2))
-         (if e1 e2
-             (clojure:cond e3 ... :else else-expr))
-         (raise-syntax-error #f "cond requires an even number of forms"))]))
+  (lambda (stx)
+    (syntax-case stx (:else)
+      [(_)
+       #'nil]
+      [(_ :else else-expr)
+       #'else-expr]
+      [(_ e1 e2 e3 ...)
+       (if (even? (length (syntax->list #'(e1 e2 e3 ...))))
+           #'(if e1 e2
+                 (clojure:cond e3 ...))
+           (raise-syntax-error #f "cond requires an even number of forms" stx))])))
 
 ;; lists - examine
 (define nth
