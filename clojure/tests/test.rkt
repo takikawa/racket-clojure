@@ -101,6 +101,9 @@ foo
 (check-equal? "negative" (pos-neg-or-zero -1))
 (check-equal? "zero" (pos-neg-or-zero 0))
 
+(check-equal? (cond) nil)
+(check-equal? (cond false 5) nil)
+
 (check-equal? (nth ["a" "b" "c" "d"] 0) "a")
 (check-equal? (nth (list "a" "b" "c" "d") 0) "a")
 (check-equal? (nth ["a" "b" "c" "d"] 1) "b")
