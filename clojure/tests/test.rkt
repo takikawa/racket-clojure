@@ -7,6 +7,7 @@
 (check-true (vector? '[1 2 3]))
 (displayln {:a 5 :b 7})
 (displayln {:a 5, :b 7})
+(check-equal? [1,2,3] [1 2 3])
 
 (def foo 3)
 foo
@@ -66,6 +67,8 @@ foo
 (check-equal? (quote a b c d) (quote a))
 (check-equal? (quote 5 a) 5)
 (check-equal? (-> 5 'a) 5)
+
+(check-equal? `(~(+ 1 2)) '(3))
 
 ;; if tests based on a post by Jay Fields
 (check-equal? "yes" (if true "yes"))
