@@ -115,3 +115,5 @@ foo
 (check-equal? (nth "Hello" 0) #\H)
 (check-equal? (nth '(1 2 3) 0) 1)
 
+(check-equal? (+ 1 2 #_(this is ignored)) 3)
+
