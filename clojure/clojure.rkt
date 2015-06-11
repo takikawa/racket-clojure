@@ -3,6 +3,7 @@
 ;; Clojure compatibility
 
 (require racket/stxparam
+         "nil.rkt"
          (for-syntax racket/base
                      racket/list
                      syntax/parse))
@@ -36,8 +37,6 @@
 
 (define true #t)
 (define false #f)
-;;nil maps most closely to #f
-(define nil #f)
 
 ;; used for let and loop
 (begin-for-syntax
@@ -105,12 +104,15 @@
     [(_ x form form_1 ...)
      #'(->> (->> x form) form_1 ...)]))
 
+(define (true? v)
+  (not (or (eq? v #f) (eq? v nil))))
+
 (define-syntax (clojure:if stx)
   (syntax-parse stx
     [(_ test then) 
-     #'(if test then #f)]
+     #'(if (true? test) then nil)]
     [(_ test then else) 
-     #'(if test then else)]))
+     #'(if (true? test) then else)]))
 
 ;; modify lexical syntax via macros
 (begin-for-syntax
@@ -167,7 +169,7 @@
        #'else-expr]
       [(_ e1 e2 e3 ...)
        (if (even? (length (syntax->list #'(e1 e2 e3 ...))))
-           #'(if e1 e2
+           #'(if (true? e1) e2
                  (clojure:cond e3 ...))
            (raise-syntax-error #f "cond requires an even number of forms" stx))])))
 
