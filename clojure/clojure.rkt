@@ -8,8 +8,9 @@
                      syntax/parse))
 
 (provide (except-out (all-from-out racket/base)
-                     add1 sub1 if cond #%app quote)
+                     add1 sub1 if cond #%app #%datum quote)
          (rename-out [-#%app #%app]
+                     [-#%datum #%datum]
                      [-quote quote]
                      [sub1 dec]
                      [add1 inc]
@@ -46,20 +47,16 @@
 
 (define-syntax (let stx)
   (syntax-parse stx
-    [(_ (~and binding-list [p:binding-pair ...])
+    [(_ #[p:binding-pair ...]
         body:expr ...)
-     #:fail-unless (eq? (syntax-property #'binding-list 'paren-shape) #\[)
-                   "expected a vector of bindings"
      #'(let* ([p.name p.val] ...)
          body ...)]))
 
 (define-syntax (loop stx)
   (syntax-parse stx
-    [(_ (~and binding-list [p:binding-pair ...])
+    [(_ #[p:binding-pair ...]
         body:expr ...)
      #:with name #'x
-     #:fail-unless (eq? (syntax-property #'binding-list 'paren-shape) #\[)
-     "expected a vector of bindings"
      #'(letrec ([name (λ (p.name ...)
                         (syntax-parameterize ([recur (make-rename-transformer #'name)])
                           body ...))])
@@ -70,13 +67,13 @@
 (define-syntax (fn stx)
   (syntax-parse stx
     [(_ (~optional name:id #:defaults ([name #'x]))
-        [param:id ...] body ...)
+        #[param:id ...] body ...)
      #'(letrec ([name (λ (param ...)
                         (syntax-parameterize ([recur (make-rename-transformer #'name)])
                           body ...))])
          name)]
     [(_ (~optional name:id #:defaults ([name #'x]))
-        ([param:id ...] body ...) ...+)
+        (#[param:id ...] body ...) ...+)
      #'(letrec ([name (syntax-parameterize ([recur (make-rename-transformer #'name)])
                         (case-lambda
                           ([param ...] body ...) ...))])
@@ -117,19 +114,17 @@
 
 ;; modify lexical syntax via macros
 (begin-for-syntax
-  ;; check for unquote in these two classes to "noop" commas
   (define-splicing-syntax-class key-value-pair
-    (pattern (~seq k:key (~or e:expr (unquote e:expr)))
+    (pattern (~seq k:key e:expr)
              #:attr pair #'(k.sym e)))
 
   (define-syntax-class key
-    (pattern (~or e:expr (unquote e:expr))
+    (pattern e:expr
              #:when (clojure-kwd? #'e)
              #:attr sym #'(quote e)))
 
   (define-syntax-class vector-literal
-    (pattern (~and vec (e:expr ...))
-             #:when (eq? (syntax-property #'vec 'paren-shape) #\[)))
+    (pattern #[e:expr ...]))
 
   (define (clojure-kwd? e)
     (define exp (syntax-e e))
@@ -138,20 +133,21 @@
 
 (define-syntax (-quote stx)
   (syntax-parse stx
-    ;; quoted vector literals
-    [(_ datum:vector-literal)
-     #'(vector datum.e ...)]
     ;; Clojure's quote allows multiple arguments
     [(_ e e_1 ...) #'(quote e)]))
 
+(define-syntax -#%datum
+  (lambda (stx)
+    (syntax-parse stx
+      [(-#%datum . #[e ...])
+       (syntax/loc stx (vector-immutable e ...))]
+      [(-#%datum . e)
+       (syntax/loc stx (#%datum . e))])))
+
 (define-syntax (-#%app stx)
   (syntax-parse stx
-    ;; [1 2 3] is an array
-    [(_ e:expr ...)
-     #:when (eq? (syntax-property stx 'paren-shape) #\[)
-     #'(vector e ...)]
     ;; {:a 1 :b 2} is a hash
-    ;; {:a 1, :b 3} is too
+    ;; {:a 1, :b 3} is too, but that's handled be the reader
     [(_ kv:key-value-pair ...)
      #:when (eq? (syntax-property stx 'paren-shape) #\{)
      #:with (key-vals ...)

@@ -5,9 +5,14 @@
 (displayln [1 2 3])
 (check-true (vector? [1 2 3]))
 (check-true (vector? '[1 2 3]))
+(check-true (immutable? [1 2 3]))
+(check-true (immutable? '[1 2 3]))
 (displayln {:a 5 :b 7})
 (displayln {:a 5, :b 7})
 (check-equal? [1,2,3] [1 2 3])
+(check-equal? [1 2 (+ 1 2)] [1 2 3])
+(check-equal? '[1 2 (+ 1 2)] [1 2 '(+ 1 2)])
+(check-equal? [1 2 [3]] (vector-immutable 1 2 (vector-immutable 3)))
 
 (def foo 3)
 foo
