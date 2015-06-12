@@ -50,6 +50,8 @@ foo
 
 (check-equal? (fact 5) 120)
 
+(check-equal? (loop [x 1 y x] y) 1)
+
 ;; thrush operators
 (require (only-in racket/string string-split string-replace))
 (check-equal?
