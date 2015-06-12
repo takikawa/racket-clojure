@@ -3,7 +3,7 @@
 (require rackunit
          (only-in racket/match (== =:)))
 
-(displayln [1 2 3])
+(prn [1 2 3])
 (check-true (vector? [1 2 3]))
 (check-true (vector? '[1 2 3]))
 (check-true (immutable? [1 2 3]))
@@ -14,8 +14,8 @@
 (check-equal? '[1 2 (+ 1 2)] [1 2 '(+ 1 2)])
 (check-equal? [1 2 [3]] (vector 1 2 (vector 3)))
 
-(displayln {:a 5 :b 7})
-(displayln {:a 5, :b 7})
+(prn {:a 5 :b 7})
+(prn {:a 5, :b 7})
 (check-equal? {:a 5 :b 7} (hash-map :a 5 :b 7))
 (check-pred map? {:a 5 :b 7})
 (check-pred map? '{:a 5 :b 7})
@@ -169,7 +169,28 @@ foo
 (check-equal? (str 1) "1")
 (check-equal? (str 1 2 3) "123")
 (check-equal? (str 1 'symbol :keyword) "1symbol:keyword")
+(check-equal? (apply str '(1 2 3)) "123")
+(check-equal? (str [1 2 3]) "[1 2 3]")
 (check-pred immutable? (str "I" " should be " "immutable"))
 
 (check-equal? (+ 1 2 #_(this is ignored)) 3)
+
+(check-equal? (pr-str) "")
+(check-equal? (pr-str "foo") "\"foo\"")
+(check-equal? (pr-str '()) "()")
+(check-equal? (pr-str []) "[]")
+(check-equal? (pr-str {}) "{}")
+(check-match (pr-str {:foo "hello" :bar 34.5})
+             (or "{:foo \"hello\" :bar 34.5}"
+                 "{:foo \"hello\", :bar 34.5}"
+                 "{:bar 34.5 :foo \"hello\"}"
+                 "{:bar 34.5, :foo \"hello\"}"))
+(check-match (pr-str #{1 2 3})
+             (or "#{1 2 3}" "#{1 3 2}"
+                 "#{2 1 3}" "#{2 3 1}"
+                 "#{3 1 2}" "#{3 2 1}"))
+(check-equal? (pr-str ['a :b "\n" \space "c"]) "[a :b \"\\n\" \\space \"c\"]")
+(check-equal? (pr-str [1 2 3 4 5]) "[1 2 3 4 5]")
+(check-equal? (pr-str '(a b foo :bar)) "(a b foo :bar)")
+(check-equal? (pr-str 1 2) "1 2")
 

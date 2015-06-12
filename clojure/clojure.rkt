@@ -6,6 +6,7 @@
          (prefix-in rkt: racket/set)
          racket/stxparam
          "nil.rkt"
+         "printer.rkt"
          (for-syntax racket/base
                      racket/list
                      syntax/parse
@@ -30,6 +31,7 @@
          hash-set set? disj
          map true false nil nth
          = == identical?
+         pr prn pr-str prn-str
          )
 
 (define-syntax-parameter recur
@@ -227,7 +229,7 @@
   (cond [(rkt:string? v) v]
         [(nil? v) ""]
         [(char? v) (rkt:string v)]
-        [else (format "~s" v)])) ;; FIXME implement clojure printer and pr-str
+        [else (pr-str v)]))
 
 (define (hash-map . args)
   (apply hash args))
