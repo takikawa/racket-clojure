@@ -59,9 +59,7 @@
      #'(letrec ([name (λ (p.name ...)
                         (syntax-parameterize ([recur (make-rename-transformer #'name)])
                           body ...))])
-         (let* ([p.name p.val] ...)
-           (syntax-parameterize ([recur (make-rename-transformer #'name)])
-             body ...)))]))
+         (name p.val ...))]))
 
 (define-syntax (fn stx)
   (syntax-parse stx
