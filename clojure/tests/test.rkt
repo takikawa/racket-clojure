@@ -7,12 +7,13 @@
 (check-true (vector? '[1 2 3]))
 (check-true (immutable? [1 2 3]))
 (check-true (immutable? '[1 2 3]))
+(check-true (immutable? (vector 1 2 3)))
 (displayln {:a 5 :b 7})
 (displayln {:a 5, :b 7})
 (check-equal? [1,2,3] [1 2 3])
 (check-equal? [1 2 (+ 1 2)] [1 2 3])
 (check-equal? '[1 2 (+ 1 2)] [1 2 '(+ 1 2)])
-(check-equal? [1 2 [3]] (vector-immutable 1 2 (vector-immutable 3)))
+(check-equal? [1 2 [3]] (vector 1 2 (vector 3)))
 
 (check-pred char? \a)
 
@@ -123,6 +124,14 @@ foo
 (check-equal? (nth [0 1 2] 77 1337) 1337)
 (check-equal? (nth "Hello" 0) #\H)
 (check-equal? (nth '(1 2 3) 0) 1)
+
+(check-equal? (str) "")
+(check-equal? (str "some string") "some string")
+(check-equal? (str nil) "")
+(check-equal? (str 1) "1")
+(check-equal? (str 1 2 3) "123")
+(check-equal? (str 1 'symbol ':keyword) "1symbol:keyword")
+(check-pred immutable? (str "I" " should be " "immutable"))
 
 (check-equal? (+ 1 2 #_(this is ignored)) 3)
 

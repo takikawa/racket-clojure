@@ -2,7 +2,8 @@
 
 ;; Clojure compatibility
 
-(require racket/stxparam
+(require (prefix-in rkt: racket/base)
+         racket/stxparam
          "nil.rkt"
          (for-syntax racket/base
                      racket/list
@@ -20,6 +21,7 @@
          def do let fn defn loop recur
          -> ->>
          partial comp complement constantly
+         vector str
          map true false nil nth)
 
 (define-syntax-parameter recur
@@ -124,9 +126,6 @@
              #:when (clojure-kwd? #'e)
              #:attr sym #'(quote e)))
 
-  (define-syntax-class vector-literal
-    (pattern #[e:expr ...]))
-
   (define (clojure-kwd? e)
     (define exp (syntax-e e))
     (and (symbol? exp)
@@ -141,7 +140,7 @@
   (lambda (stx)
     (syntax-parse stx
       [(-#%datum . #[e ...])
-       (syntax/loc stx (vector-immutable e ...))]
+       (syntax/loc stx (vector e ...))]
       [(-#%datum . e)
        (syntax/loc stx (#%datum . e))])))
 
@@ -199,3 +198,18 @@
 (define (rest s) stream-rest)
 (define (cons fst rst) (stream-cons fst rst))
 (define map sequence-map)
+
+(define (vector . args)
+  (apply vector-immutable args))
+
+(define (str . args)
+  (string->immutable-string
+   (apply string-append (rkt:map toString args))))
+
+;; private: can return a mutable string because str will still produce an immutable one
+(define (toString v)
+  (cond [(rkt:string? v) v]
+        [(nil? v) ""]
+        [(char? v) (rkt:string v)]
+        [else (format "~s" v)])) ;; FIXME implement clojure printer and pr-str
+
