@@ -14,6 +14,8 @@
 (check-equal? '[1 2 (+ 1 2)] [1 2 '(+ 1 2)])
 (check-equal? [1 2 [3]] (vector-immutable 1 2 (vector-immutable 3)))
 
+(check-pred char? \a)
+
 (def foo 3)
 foo
 
