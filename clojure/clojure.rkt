@@ -13,9 +13,10 @@
                      ))
 
 (provide (except-out (all-from-out racket/base)
-                     add1 sub1 if cond #%app #%datum quote)
+                     add1 sub1 if cond #%app #%datum #%top quote)
          (rename-out [-#%app #%app]
                      [-#%datum #%datum]
+                     [-#%top #%top]
                      [-quote quote]
                      [sub1 dec]
                      [add1 inc]
@@ -146,6 +147,10 @@
     (syntax-parse stx
       [(-#%datum . #[e ...])
        (syntax/loc stx (vector e ...))]
+      [(-#%datum . hsh)
+       #:when (syntax-property #'hsh 'clojure-hash-map)
+       #:with (e ...) (replace-context #'hsh (syntax-property #'hsh 'clojure-hash-map))
+       (syntax/loc stx (hash-map e ...))]
       [(-#%datum . st)
        #:when (syntax-property #'st 'clojure-set)
        #:with (e:expr ...) (replace-context #'st (syntax-property #'st 'clojure-set))
@@ -155,17 +160,17 @@
 
 (define-syntax (-#%app stx)
   (syntax-parse stx
-    ;; {:a 1 :b 2} is a hash
-    ;; {:a 1, :b 3} is too, but that's handled be the reader
-    [(_ kv:key-value-pair ...)
-     #:when (eq? (syntax-property stx 'paren-shape) #\{)
-     #:with (key-vals ...)
-            (datum->syntax
-              #'(kv ...)
-              (apply append (syntax->datum #'(kv.pair ...))))
-     #'(hash-map key-vals ...)]
     [(_ proc:expr arg:expr ...)
      #'(#%app proc arg ...)]))
+
+(define-syntax -#%top
+  (lambda (stx)
+    (syntax-parse stx
+      [(-#%top . id)
+       #:when (syntax-property #'id 'clojure-keyword)
+       (syntax/loc stx (quote id))]
+      [(-#%top . id)
+       (syntax/loc stx (#%top . id))])))
 
 (define-syntax clojure:cond
   (lambda (stx)
