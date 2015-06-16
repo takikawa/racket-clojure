@@ -3,11 +3,14 @@
 ;; Clojure compatibility
 
 (require (prefix-in rkt: racket/base)
+         (prefix-in rkt: racket/set)
          racket/stxparam
          "nil.rkt"
          (for-syntax racket/base
                      racket/list
-                     syntax/parse))
+                     syntax/parse
+                     syntax/strip-context
+                     ))
 
 (provide (except-out (all-from-out racket/base)
                      add1 sub1 if cond #%app #%datum quote)
@@ -22,6 +25,7 @@
          -> ->>
          partial comp complement constantly
          vector str
+         hash-set set?
          map true false nil nth)
 
 (define-syntax-parameter recur
@@ -141,6 +145,10 @@
     (syntax-parse stx
       [(-#%datum . #[e ...])
        (syntax/loc stx (vector e ...))]
+      [(-#%datum . st)
+       #:when (syntax-property #'st 'clojure-set)
+       #:with (e:expr ...) (replace-context #'st (syntax-property #'st 'clojure-set))
+       (syntax/loc stx (hash-set e ...))]
       [(-#%datum . e)
        (syntax/loc stx (#%datum . e))])))
 
@@ -212,4 +220,10 @@
         [(nil? v) ""]
         [(char? v) (rkt:string v)]
         [else (format "~s" v)])) ;; FIXME implement clojure printer and pr-str
+
+(define (hash-set . args)
+  (apply rkt:set args))
+
+(define (set? v)
+  (rkt:set? v))
 

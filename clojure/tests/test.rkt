@@ -17,6 +17,14 @@
 
 (check-pred char? \a)
 
+(check-pred set? #{1 2 3})
+(check-pred set? '#{1 2 3})
+(check-equal? #{1 2 3} (hash-set 1 2 3))
+(check-equal? '#{1 2 3} (hash-set 1 2 3))
+(check-equal? #{1 2 (+ 1 2)} #{1 2 3})
+(check-equal? '#{1 2 (+ 1 2)} #{1 2 '(+ 1 2)})
+(check-equal? #{1 2 #{3}} (hash-set 1 2 (hash-set 3)))
+
 (def foo 3)
 foo
 

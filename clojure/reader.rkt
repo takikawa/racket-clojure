@@ -2,7 +2,7 @@
 
 (provide make-clojure-readtable)
 
-(require racket/port)
+(require racket/port racket/set)
 
 (define (make-clojure-readtable [rt (current-readtable)])
   (make-readtable rt
@@ -10,6 +10,7 @@
                   #\, #\space #f
                   #\_ 'dispatch-macro s-exp-comment-proc
                   #\[ 'terminating-macro vec-proc
+                  #\{ 'dispatch-macro set-proc
                   #\\ 'non-terminating-macro char-proc
                   ))
 
@@ -25,6 +26,14 @@
 
 (define (list->immutable-vector lst)
   (apply vector-immutable lst))
+
+(define (set-proc ch in src ln col pos)
+  (define lst-stx
+    (parameterize ([read-accept-dot #f])
+      (read-syntax/recursive src in ch (make-readtable (current-readtable) ch #\{ #f))))
+  (datum->syntax lst-stx (list->set (syntax->datum lst-stx))
+    lst-stx
+    (syntax-property lst-stx 'clojure-set lst-stx)))
 
 (define (char-proc ch in src ln col pos)
   (define in*
