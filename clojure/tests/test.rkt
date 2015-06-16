@@ -8,12 +8,15 @@
 (check-true (immutable? [1 2 3]))
 (check-true (immutable? '[1 2 3]))
 (check-true (immutable? (vector 1 2 3)))
-(displayln {:a 5 :b 7})
-(displayln {:a 5, :b 7})
 (check-equal? [1,2,3] [1 2 3])
 (check-equal? [1 2 (+ 1 2)] [1 2 3])
 (check-equal? '[1 2 (+ 1 2)] [1 2 '(+ 1 2)])
 (check-equal? [1 2 [3]] (vector 1 2 (vector 3)))
+
+(displayln {:a 5 :b 7})
+(displayln {:a 5, :b 7})
+(check-equal? {:a 5 :b 7} (hash-map ':a 5 ':b 7))
+(check-pred map? {:a 5 :b 7})
 
 (check-pred char? \a)
 

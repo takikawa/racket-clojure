@@ -25,6 +25,7 @@
          -> ->>
          partial comp complement constantly
          vector str
+         hash-map map?
          hash-set set?
          map true false nil nth)
 
@@ -162,7 +163,7 @@
             (datum->syntax
               #'(kv ...)
               (apply append (syntax->datum #'(kv.pair ...))))
-     #'(hash key-vals ...)]
+     #'(hash-map key-vals ...)]
     [(_ proc:expr arg:expr ...)
      #'(#%app proc arg ...)]))
 
@@ -220,6 +221,12 @@
         [(nil? v) ""]
         [(char? v) (rkt:string v)]
         [else (format "~s" v)])) ;; FIXME implement clojure printer and pr-str
+
+(define (hash-map . args)
+  (apply hash args))
+
+(define (map? v)
+  (and (hash? v) (immutable? v)))
 
 (define (hash-set . args)
   (apply rkt:set args))
