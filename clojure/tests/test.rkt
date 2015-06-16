@@ -1,6 +1,7 @@
 #lang clojure
 
-(require rackunit)
+(require rackunit
+         (only-in racket/match (== =:)))
 
 (displayln [1 2 3])
 (check-true (vector? [1 2 3]))
@@ -139,6 +140,28 @@ foo
 (check-equal? (nth [0 1 2] 77 1337) 1337)
 (check-equal? (nth "Hello" 0) #\H)
 (check-equal? (nth '(1 2 3) 0) 1)
+
+(check-equal? (zipmap [:a :b :c :d :e] [1 2 3 4 5])
+              {:a 1, :b 2, :c 3, :d 4, :e 5})
+(check-equal? (zipmap [:a :b :c] [1 2 3 4])
+              {:a 1, :b 2, :c 3})
+(check-equal? (zipmap [:a :b :c] [1 2])
+              {:a 1, :b 2})
+
+(check-equal? (get {:a 1 :b 2} :a) 1)
+(check-match (keys {:a 1 :b 2}) (or (=: '(:a :b)) (=: '(:b :a))))
+(check-match (vals {:a 1 :b 2}) (or (=: '(1 2)) (=: '(2 1))))
+(let [m {:a 1 :b 2}]
+  (check-equal? (zipmap (keys m) (vals m)) m))
+(check-equal? (assoc {:a 1 :b 2} :c 3) {:a 1 :b 2 :c 3})
+(check-equal? (dissoc {:a 1 :b 2} :b) {:a 1})
+
+(check-equal? (disj #{:a :b} :a) #{:b})
+
+(check-true (= {:a [1 2 3] :b #{:x :y} :c {:foo 1 :bar 2}}
+               {:a [1 2 3] :b #{:y :x} :c {:bar 2 :foo 1}}))
+(check-false (= 4 4.0))
+(check-true (== 4 4.0))
 
 (check-equal? (str) "")
 (check-equal? (str "some string") "some string")

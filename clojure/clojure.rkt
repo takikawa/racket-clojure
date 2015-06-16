@@ -26,9 +26,11 @@
          -> ->>
          partial comp complement constantly
          vector str
-         hash-map map?
-         hash-set set?
-         map true false nil nth)
+         hash-map map? zipmap get keys vals assoc dissoc
+         hash-set set? disj
+         map true false nil nth
+         = == identical?
+         )
 
 (define-syntax-parameter recur
   (λ (stx)
@@ -238,4 +240,42 @@
 
 (define (set? v)
   (rkt:set? v))
+
+(define (zipmap keys vals)
+  (for/hash ([k keys] [v vals])
+    (values k v)))
+
+(define (get map key [not-found nil])
+  (hash-ref map key (λ () not-found)))
+
+(define (keys map)
+  (hash-keys map))
+
+(define (vals map)
+  (hash-values map))
+
+(define (assoc map . k/vs)
+  (apply hash-set* map k/vs))
+
+(define (dissoc map . ks)
+  (for/fold ([map map]) ([k (in-list ks)])
+    (hash-remove map k)))
+
+(define (disj set . ks)
+  (for/fold ([set set]) ([k (in-list ks)])
+    (rkt:set-remove set k)))
+
+(define (= a . bs)
+  (for/and ([b (in-list bs)])
+    (equal? a b)))
+
+(define (== a . bs)
+  (if (number? a)
+      (and (andmap number? bs)
+           (apply rkt:= a bs))
+      (for/and ([b (in-list bs)])
+        (equal?/recur a b ==))))
+
+(define (identical? a b)
+  (eq? a b))
 
