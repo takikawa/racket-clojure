@@ -1,6 +1,8 @@
 #lang clojure
 
 (require rackunit
+         racket/list
+         racket/stream
          (only-in racket/match (== =:)))
 
 (prn [1 2 3])
@@ -193,4 +195,14 @@ foo
 (check-equal? (pr-str [1 2 3 4 5]) "[1 2 3 4 5]")
 (check-equal? (pr-str '(a b foo :bar)) "(a b foo :bar)")
 (check-equal? (pr-str 1 2) "1 2")
+
+(check-equal? (stream->list (map #(* 2 %) (range 0 10)))
+              '(0 2 4 6 8 10 12 14 16 18))
+(check-equal? (#(+ %1 %2 %3) 1 2 3)
+              6)
+(check-equal? (#(apply list* % %&) 1 '(2 3))
+              '(1 2 3))
+(check-equal? (let [lambda "not lambda" define-syntax "not define-syntax"]
+                (#(do %) 3))
+              3)
 
