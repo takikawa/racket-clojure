@@ -5,6 +5,7 @@
 (require racket/port
          racket/set
          syntax/readerr
+         "reader/parse-afl.rkt"
          )
 
 (define (make-clojure-readtable [rt (current-readtable)])
@@ -17,6 +18,7 @@
                   #\{ 'dispatch-macro set-proc
                   #\\ 'non-terminating-macro char-proc
                   #\: 'non-terminating-macro kw-proc
+                  #\( 'dispatch-macro afl-proc
                   ))
 
 (define (s-exp-comment-proc ch in src ln col pos)
@@ -64,4 +66,9 @@
   (define id-stx
     (read-syntax/recursive src in ch (make-readtable (current-readtable) ch #\: #f)))
   (syntax-property id-stx 'clojure-keyword #t))
+
+(define (afl-proc ch in src ln col pos)
+  (define lst-stx
+    (read-syntax/recursive src in ch))
+  (parse-afl lst-stx))
 
