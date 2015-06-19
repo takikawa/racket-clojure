@@ -98,6 +98,23 @@ foo
 
 (check-equal? `(~(+ 1 2)) '(3))
 
+;; boolean and not
+(check-equal? (boolean true) true)
+(check-equal? (boolean false) false)
+(check-equal? (boolean nil) false)
+(check-equal? (boolean "a string") true)
+(check-equal? (boolean 0) true)
+(check-equal? (boolean 1) true)
+(check-equal? (not true) false)
+(check-equal? (not false) true)
+(check-equal? (not nil) true)
+(check-equal? (not "a string") false)
+(check-equal? (not 0) false)
+(check-equal? (not 1) false)
+(check-equal? (for/hash ((v (in-vector [true false nil [] {} '() #{} ""])))
+                (values v (boolean v)))
+              {true true, false false, nil false, [] true, {} true, '() true, #{} true, "" true})
+
 ;; if tests based on a post by Jay Fields
 (check-equal? "yes" (if true "yes"))
 (check-equal? "yes" (if true "yes" "no"))

@@ -29,7 +29,8 @@
          vector str
          hash-map map? zipmap get keys vals assoc dissoc
          hash-set set? disj
-         map true false nil nth
+         map nth
+         true false nil boolean not
          = == identical?
          pr prn pr-str prn-str
          )
@@ -115,15 +116,18 @@
     [(_ x form form_1 ...)
      #'(->> (->> x form) form_1 ...)]))
 
-(define (true? v)
-  (not (or (eq? v #f) (eq? v nil))))
+(define (not v)
+  (or (eq? v #f) (eq? v nil)))
+
+(define (boolean v)
+  (rkt:not (not v)))
 
 (define-syntax (clojure:if stx)
   (syntax-parse stx
     [(_ test then) 
-     #'(if (true? test) then nil)]
+     #'(if (boolean test) then nil)]
     [(_ test then else) 
-     #'(if (true? test) then else)]))
+     #'(if (boolean test) then else)]))
 
 ;; modify lexical syntax via macros
 (begin-for-syntax
@@ -185,7 +189,7 @@
        #'else-expr]
       [(_ e1 e2 e3 ...)
        (if (even? (length (syntax->list #'(e1 e2 e3 ...))))
-           #'(if (true? e1) e2
+           #'(if (boolean e1) e2
                  (clojure:cond e3 ...))
            (raise-syntax-error #f "cond requires an even number of forms" stx))])))
 
