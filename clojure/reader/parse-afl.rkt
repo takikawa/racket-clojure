@@ -1,6 +1,6 @@
 #lang racket/base
 
-(provide parse-afl)
+(provide parse-afl current-syntax-introducer make-intro)
 
 (require racket/match
          racket/list
@@ -18,8 +18,16 @@
 
 (require-a-lot (only-in racket/base lambda define-syntax #%app make-rename-transformer syntax))
 
+(define current-syntax-introducer (make-parameter (λ (x) x)))
+
+(define make-intro
+  (cond [(procedure-arity-includes? make-syntax-introducer 1)
+         (λ () (make-syntax-introducer #t))]
+        [else
+         (λ () (make-syntax-introducer))]))
+
 (define (parse-afl stx)
-  (define intro (make-syntax-introducer))
+  (define intro (current-syntax-introducer))
   (define stx* (intro stx))
   (with-syntax ([args (parse-args stx*)]
                 [% (datum->syntax stx* '%)]

@@ -1,6 +1,6 @@
 #lang racket/base
 
-(provide make-clojure-readtable)
+(provide wrap-reader make-clojure-readtable current-syntax-introducer make-intro)
 
 (require racket/port
          racket/set
@@ -71,4 +71,11 @@
   (define lst-stx
     (read-syntax/recursive src in ch))
   (parse-afl lst-stx))
+
+(define (wrap-reader rd)
+  (lambda args
+    (define intro (make-intro))
+    (parameterize ([current-readtable (make-clojure-readtable)]
+                   [current-syntax-introducer intro])
+      (intro (apply rd args)))))
 

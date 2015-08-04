@@ -2,10 +2,11 @@
 
 (provide configure)
 
-(require (only-in clojure/reader make-clojure-readtable)
+(require (only-in clojure/reader make-clojure-readtable current-syntax-introducer make-intro)
          (only-in clojure/printer pr))
 
 (define (configure data)
+  (current-syntax-introducer (make-intro))
   (current-readtable (make-clojure-readtable))
   (current-print (make-print-proc (current-print)))
   )

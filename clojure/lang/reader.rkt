@@ -1,10 +1,11 @@
-#lang s-exp syntax/module-reader
-clojure/clojure
-#:language-info '#[clojure/lang/language-info get-language-info #f]
-#:wrapper1
-(lambda (t)
-  (parameterize ([current-readtable (make-clojure-readtable)])
-    (t)))
+#lang racket/base
 
-(require clojure/reader)
+(provide read read-syntax get-info)
+
+(require clojure/reader
+         (prefix-in - "reader-no-wrap.rkt"))
+
+(define read (wrap-reader -read))
+(define read-syntax (wrap-reader -read-syntax))
+(define get-info -get-info)
 
