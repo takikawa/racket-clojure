@@ -5,6 +5,7 @@
 (require racket/port
          racket/set
          syntax/readerr
+         version/utils
          "reader/parse-afl.rkt"
          )
 
@@ -77,5 +78,8 @@
     (define intro (make-intro))
     (parameterize ([current-readtable (make-clojure-readtable)]
                    [current-syntax-introducer intro])
-      (intro (apply rd args)))))
+      (define stx (apply rd args))
+      (if (and (syntax? stx) (version<=? "6.2.900.4" (version)))
+          (intro stx)
+          stx))))
 
